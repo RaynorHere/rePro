@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+
+  <!--
+    libssh2 dependency paths, resolved via vcpkg at C:\vcpkg.
+
+    Installed with:
+      C:\vcpkg\vcpkg.exe install libssh2:x64-windows-static-md
+
+    Triplet x64-windows-static-md:
+      static .lib (no DLL to ship) + dynamic CRT (/MD, MSVC default)
+
+    libssh2 static on Windows requires linking its full dependency chain:
+      libssh2.lib   SSH protocol
+      libssl.lib    OpenSSL TLS
+      libcrypto.lib OpenSSL crypto  (also needs crypt32, advapi32, user32)
+      zs.lib / zsd.lib  zlib compression (release / debug names differ)
+      ws2_32.lib    Winsock (listed in each exe vcxproj)
+      crypt32.lib   Windows CryptoAPI (OpenSSL requirement)
+      advapi32.lib  Windows Advanced Services (OpenSSL requirement)
+      user32.lib    Windows User (OpenSSL requirement)
+
+    To override the root at build time:
+      msbuild shushCopy.sln /p:LibSsh2Root=C:\path\to\alt\install\
+  -->
+
+  <PropertyGroup>
+    <!-- Prefer VCPKG_ROOT env var if set (standard after vcpkg integrate install);
+         fall back to C:\vcpkg as a last resort.  Override either at build time:
+           msbuild shushCopy.sln /p:LibSsh2Root=C:\path\to\alt\install\        -->
+    <LibSsh2Root Condition="'$(LibSsh2Root)'=='' AND '$(VCPKG_ROOT)'!=''">$(VCPKG_ROOT)\installed\x64-windows-static-md\</LibSsh2Root>
+    <LibSsh2Root Condition="'$(LibSsh2Root)'==''">C:\vcpkg\installed\x64-windows-static-md\</LibSsh2Root>
+    <LibSsh2Include>$(LibSsh2Root)include</LibSsh2Include>
+    <!-- Release: zlib is zs.lib -->
+    <LibSsh2Libs Condition="'$(Configuration)'=='Release'">$(LibSsh2Root)lib\libssh2.lib;$(LibSsh2Root)lib\libssl.lib;$(LibSsh2Root)lib\libcrypto.lib;$(LibSsh2Root)lib\zs.lib</LibSsh2Libs>
+    <!-- Debug: zlib is zsd.lib; other libs are in the debug subtree -->
+    <LibSsh2Libs Condition="'$(Configuration)'=='Debug'">$(LibSsh2Root)debug\lib\libssh2.lib;$(LibSsh2Root)debug\lib\libssl.lib;$(LibSsh2Root)debug\lib\libcrypto.lib;$(LibSsh2Root)debug\lib\zsd.lib</LibSsh2Libs>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <!-- fopen, snprintf etc. are standard C; suppress MSVC's non-portable
+           _s replacement warnings so the code stays portable across compilers. -->
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>
+        $(SolutionDir)$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+
+</Project>

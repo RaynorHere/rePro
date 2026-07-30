@@ -1,0 +1,20 @@
+[package]
+name    = "shush_copy"
+version = "0.1.0"
+edition = "2021"
+description = "shushCopy Rust port -- SSH exec and SCP send/recv (ssh2 crate / libssh2)"
+
+# Produces both a reusable library and a CLI binary from the same crate.
+[[bin]]
+name = "shush_rs"
+path = "src/main.rs"
+
+[lib]
+name = "shush_copy"
+path = "src/lib.rs"
+
+[dependencies]
+ssh2 = "0.9"
+
+# rpassword: cross-platform echo-off password prompt (used by 'shush config').
+rpassword = "7"

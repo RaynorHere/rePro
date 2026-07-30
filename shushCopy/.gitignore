@@ -1,0 +1,28 @@
+# Build output
+x64/
+out/
+rust/target/
+
+# VS ephemeral files
+*.user
+*.suo
+.vs/
+*.VC.db
+*.VC.opendb
+*.VC.db-shm
+*.VC.db-wal
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Test artifacts generated during dev
+test_output.json
+test_chart*.png
+
+# Deployment zips (built locally, not tracked)
+*.zip
+
+# Config file with connection details (written by 'shush config'; never committed)
+config/shush.cfg
