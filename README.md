@@ -26,8 +26,5 @@ Written due to moving personal systems all to Linux, and finding very few native
 ***
 
 ### Single-Lang-Projects: 
-Projects without language ports. Contains: DashMan
-  
-
-  
-  
+<span style="font-size:larger;"> Projects without language ports. Contains:</span> \
+__Python__ - copyComb/cCheck, reaveScript
